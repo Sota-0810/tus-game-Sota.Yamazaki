@@ -36,8 +36,8 @@ public class VersusPlayerButton : MonoBehaviour
     {
         // SceneManager.LoadSceneを使用して、指定されたゲーム画面へ遷移します。
         // SceneNamesクラスのDemo_Game_Moonを使用します。
-        SceneManager.LoadScene(SceneNames.Demo_Game_Moon);
+        SceneManager.LoadScene(SceneNames.Demo_Game_Desert);
         
-        Debug.Log($"シーン遷移: {SceneNames.Demo_Game_Moon}");
+        Debug.Log($"シーン遷移: {SceneNames.Demo_Game_Desert}");
     }
 }
