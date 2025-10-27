@@ -25,6 +25,18 @@ namespace Tanks.Complete
         public bool m_IsComputerControlled = false; // Is this tank player or computer controlled
         [HideInInspector]
         public TankInputUser m_InputUser;            // The Input User component for that tanks. Contains the Input Actions.
+
+        // --- 課題 1: 変数の追加 ---
+        [Header("Turret Settings")]
+        [Tooltip("砲塔のゲームオブジェクトのTransformの参照")]
+        public Transform m_TurretTransform;
+        [Tooltip("砲塔の回転速度 (deg/s)")]
+        public float m_TurretTurnSpeedValue = 180f; // 課題: 砲塔の回転速度
+        
+        private float m_TurretTurnInputValue;       // 課題: 砲塔の回転キーの入力量
+        private string m_TurretTurnActionName;      // 課題: 砲塔を回転するActionのキー名
+        private InputAction m_TurretTurnAction;     // 課題: 砲塔を回転するキーのInputAction
+        // --- 課題 1: ここまで ---
         
         public Rigidbody Rigidbody => m_Rigidbody;
         
@@ -51,6 +63,14 @@ namespace Tanks.Complete
             m_InputUser = GetComponent<TankInputUser>();
             if (m_InputUser == null)
                 m_InputUser = gameObject.AddComponent<TankInputUser>();
+
+            // --- 課題 3: Awakeの変更 ---
+            // 砲塔のゲームオブジェクトが参照できているか、Nullチェックを行います。
+            if (m_TurretTransform == null)
+            {
+                Debug.LogWarning(name + ": TankMovement is missing the m_TurretTransform reference. Turret will not rotate.", this);
+            }
+            // --- 課題 3: ここまで ---
         }
 
 
@@ -139,6 +159,23 @@ namespace Tanks.Complete
             // actions need to be enabled before they can react to input
             m_MoveAction.Enable();
             m_TurnAction.Enable();
+
+            // --- 課題 3: Startの変更 ---
+            // 砲塔の回転キーのNameを代入し、FindActionメソッドを使用してm_TurretTurnActionに割り当てます。
+            // (注意: "Turret"という名前のアクションがInput Actionsアセットに定義されている必要があります)
+            m_TurretTurnActionName = "Turret"; 
+            m_TurretTurnAction = m_InputUser.ActionAsset.FindAction(m_TurretTurnActionName);
+
+            if (m_TurretTurnAction != null)
+            {
+                // ReadValueメソッドによりアクションを有効化します。
+                m_TurretTurnAction.Enable();
+            }
+            else
+            {
+                Debug.LogWarning(name + $": TankMovement could not find Action '{m_TurretTurnActionName}'. Turret will not rotate.", this);
+            }
+            // --- 課題 3: ここまで ---
             
             // Store the original pitch of the audio source.
             if(m_MovementAudio)
@@ -155,6 +192,14 @@ namespace Tanks.Complete
             {
                 m_MovementInputValue = m_MoveAction.ReadValue<float>();
                 m_TurnInputValue = m_TurnAction.ReadValue<float>();
+
+                // --- 課題 3: Updateの変更 ---
+                // 砲塔の回転キーの入力量ReadValueメソッドによりを取得します。
+                if (m_TurretTurnAction != null)
+                {
+                    m_TurretTurnInputValue = m_TurretTurnAction.ReadValue<float>();
+                }
+                // --- 課題 3: ここまで ---
             }
             
             if(m_MovementAudio)
@@ -221,6 +266,11 @@ namespace Tanks.Complete
             // Adjust the rigidbodies position and orientation in FixedUpdate.
             Move ();
             Turn ();
+
+            // --- 課題 3: FixedUpdateの変更 ---
+            // TurretTurnメソッドを呼び出します。
+            TurretTurn();
+            // --- 課題 3: ここまで ---
         }
 
 
@@ -273,6 +323,28 @@ namespace Tanks.Complete
             // Apply this rotation to the rigidbody's rotation.
             m_Rigidbody.MoveRotation (m_Rigidbody.rotation * turnRotation);
         }
+
+        // --- 課題 2: TurretTurnメソッドの追加 ---
+        private void TurretTurn()
+        {
+            // m_TurretTransformがnullの場合は、処理を抜けます。
+            if (m_TurretTransform == null)
+            {
+                return;
+            }
+
+            // キーの入力量、回転速度、前のフレームから進んだ時間に基づいて、回転する角度を決定します。
+            float turretTurnAngle = m_TurretTurnInputValue * m_TurretTurnSpeedValue * Time.deltaTime;
+            
+            // 計算した角度を使って砲塔のY軸の角度(transform.rotation)を更新します。
+            // Quaternionで定義した角度を利用します。
+            Quaternion turnRotation = Quaternion.Euler(0f, turretTurnAngle, 0f);
+
+            // Quaternionの掛け算を利用してm_TurretTransform.localRotationを変更します。
+            // (現在の向き * 新しい回転 = 新しい向き)
+            m_TurretTransform.localRotation = m_TurretTransform.localRotation * turnRotation;
+        }
+        // --- 課題 2: ここまで ---
 
         public void AddExplosionForce(float explosionForce, Vector3 explosionPosition, float explosionRadius, float upwardsModifier = 0f)
         {
