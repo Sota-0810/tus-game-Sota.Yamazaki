@@ -4,6 +4,9 @@ using UnityEngine.InputSystem.Users;
 
 namespace Tanks.Complete
 {
+    // 変更: 回転軸を選択するための enum を定義
+    public enum RotationAxis { Y, X, Z }
+
     //Ensure it run before the TankShooting component as TankShooting grabs the InputUser from this when there are no
     //GameManager set (used during learning experience to test tank in empty scenes)
     [DefaultExecutionOrder(-10)]
@@ -30,6 +33,16 @@ namespace Tanks.Complete
         [Header("Turret Settings")]
         [Tooltip("砲塔のゲームオブジェクトのTransformの参照")]
         public Transform m_TurretTransform;
+
+        // --- 課題: TurretHUDのTransform変数を追加 ---
+        [Tooltip("砲塔のHUD（TurretHUD）のTransformの参照")]
+        public Transform m_TurretHUDTransform;
+        // --- 課題: ここまで ---
+
+        // 変更: Inspectorから回転軸を選択できる変数を追加
+        [Tooltip("砲塔が回転するローカル軸（モデルが横倒しになっている場合はXまたはZを指定）")]
+        public RotationAxis m_TurretRotationAxis = RotationAxis.Y;
+
         [Tooltip("砲塔の回転速度 (deg/s)")]
         public float m_TurretTurnSpeedValue = 180f; // 課題: 砲塔の回転速度
         
@@ -71,6 +84,12 @@ namespace Tanks.Complete
                 Debug.LogWarning(name + ": TankMovement is missing the m_TurretTransform reference. Turret will not rotate.", this);
             }
             // --- 課題 3: ここまで ---
+
+            // 課題: m_TurretHUDTransformのNullチェックも追加しておくと安全です
+            if (m_TurretHUDTransform == null)
+            {
+                 Debug.LogWarning(name + ": TankMovement is missing the m_TurretHUDTransform reference. Turret HUD will not rotate.", this);
+            }
         }
 
 
@@ -82,6 +101,7 @@ namespace Tanks.Complete
             // Also reset the input values and explosion force.
             m_MovementInputValue = 0f;
             m_TurnInputValue = 0f;
+            m_TurretTurnInputValue = 0f; // 課題 3: OnEnableの変更 (砲塔の回転キーの入力量をリセット)
             m_ExplosionForceValue = Vector3.zero;
             // We grab all the Particle systems child of that Tank to be able to Stop/Play them on Deactivate/Activate
             // It is needed because we move the Tank when spawning it, and if the Particle System is playing while we do that
@@ -163,7 +183,7 @@ namespace Tanks.Complete
             // --- 課題 3: Startの変更 ---
             // 砲塔の回転キーのNameを代入し、FindActionメソッドを使用してm_TurretTurnActionに割り当てます。
             // (注意: "Turret"という名前のアクションがInput Actionsアセットに定義されている必要があります)
-            m_TurretTurnActionName = "Turret"; 
+            m_TurretTurnActionName = "TurretTurn"; 
             m_TurretTurnAction = m_InputUser.ActionAsset.FindAction(m_TurretTurnActionName);
 
             if (m_TurretTurnAction != null)
@@ -335,14 +355,42 @@ namespace Tanks.Complete
 
             // キーの入力量、回転速度、前のフレームから進んだ時間に基づいて、回転する角度を決定します。
             float turretTurnAngle = m_TurretTurnInputValue * m_TurretTurnSpeedValue * Time.deltaTime;
+
+            Quaternion turretModelRotation; // 砲塔モデル用の回転
+            Quaternion hudRotation;         // HUD用の回転
             
             // 計算した角度を使って砲塔のY軸の角度(transform.rotation)を更新します。
             // Quaternionで定義した角度を利用します。
-            Quaternion turnRotation = Quaternion.Euler(0f, turretTurnAngle, 0f);
+            //いったんコメントアウトQuaternion turnRotation = Quaternion.Euler(0f, turretTurnAngle, 0f);
 
+            hudRotation = Quaternion.Euler(0f, turretTurnAngle, 0f);
+
+            // 選択された軸に応じて回転を生成する
+            switch (m_TurretRotationAxis)
+            {
+                case RotationAxis.X:
+                    turretModelRotation = Quaternion.Euler(turretTurnAngle, 0f, 0f);
+                    break;
+                case RotationAxis.Z:
+                    turretModelRotation = Quaternion.Euler(0f, 0f, turretTurnAngle);
+                    break;
+                case RotationAxis.Y:
+                default:
+                    turretModelRotation = Quaternion.Euler(0f, turretTurnAngle, 0f);
+                    break;
+            }
             // Quaternionの掛け算を利用してm_TurretTransform.localRotationを変更します。
             // (現在の向き * 新しい回転 = 新しい向き)
-            m_TurretTransform.localRotation = m_TurretTransform.localRotation * turnRotation;
+            m_TurretTransform.localRotation = m_TurretTransform.localRotation * turretModelRotation;
+
+            // --- 課題: TurretHUDの回転を更新 ---
+            if (m_TurretHUDTransform != null)
+            {
+                // 砲塔とまったく同じ回転を適用します
+                //全く同じ回転だとうまく行かなかったため、逆回転に設定
+                m_TurretHUDTransform.localRotation = m_TurretHUDTransform.localRotation * Quaternion.Inverse(hudRotation);
+            }
+            // --- 課題: ここまで ---
         }
         // --- 課題 2: ここまで ---
 
