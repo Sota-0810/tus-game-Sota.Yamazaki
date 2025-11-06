@@ -77,6 +77,10 @@ PrefabInstance:
       value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 11488788, guid: 756d3a6506f2f8241b4e8badde68567a, type: 3}
+      propertyPath: m_MaxShells
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 11488788, guid: 756d3a6506f2f8241b4e8badde68567a, type: 3}
       propertyPath: m_ShotCooldown
       value: 0.85
       objectReference: {fileID: 0}
@@ -85,8 +89,16 @@ PrefabInstance:
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 11488788, guid: 756d3a6506f2f8241b4e8badde68567a, type: 3}
+      propertyPath: m_StartingShells
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 11488788, guid: 756d3a6506f2f8241b4e8badde68567a, type: 3}
       propertyPath: m_ExplosionRadius
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 11488788, guid: 756d3a6506f2f8241b4e8badde68567a, type: 3}
+      propertyPath: m_ShellsPerCartridge
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 22470720, guid: 756d3a6506f2f8241b4e8badde68567a, type: 3}
       propertyPath: m_AnchorMax.x

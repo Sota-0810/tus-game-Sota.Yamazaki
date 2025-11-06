@@ -28,13 +28,24 @@ namespace Tanks.Complete
         [Tooltip("The radius of the explosion in Unity unit. Force decrease with distance to the center, and an tank further than this from the shell explosion won't be impacted by the explosion")]
         public float m_ExplosionRadius = 5f;                // The maximum distance away from the explosion tanks can be and are still affected.
 
+        // === 砲弾システム (指示1) ===
+        [Header("Shell Ammunition")]
+        [Tooltip("ゲーム開始時の砲弾の所持数")]
+        public int m_StartingShells = 10;
+        [Tooltip("所持可能な砲弾の最大数")]
+        public int m_MaxShells = 50;
+        [Tooltip("砲弾カートリッジを取得したときに補充する数")]
+        public int m_ShellsPerCartridge = 10;
+        public int m_CurrentShells;                // 現在の砲弾の所持数
+        // === ここまで ===
+        
         [HideInInspector]
         public TankInputUser m_InputUser;           // The Input User component for that tanks. Contains the Input Actions. 
         
         public float CurrentChargeRatio =>
             (m_CurrentLaunchForce - m_MinLaunchForce) / (m_MaxLaunchForce - m_MinLaunchForce); //The charging amount between 0-1
         public bool IsCharging => m_IsCharging;
-        
+
         public bool m_IsComputerControlled { get; set; } = false;
 
         private string m_FireButton;                // The input axis that is used for launching shells.
@@ -78,6 +89,10 @@ namespace Tanks.Complete
 
             // The rate that the launch force charges up is the range of possible forces by the max charge time.
             m_ChargeSpeed = (m_MaxLaunchForce - m_MinLaunchForce) / m_MaxChargeTime;
+
+            // === 砲弾の初期化 (指示2) ===
+            m_CurrentShells = m_StartingShells;
+            // === ここまで ===
         }
 
 
@@ -166,7 +181,9 @@ namespace Tanks.Complete
                 Fire ();
             }
             // Otherwise, if the fire button has just started being pressed...
-            else if (m_ShotCooldownTimer <= 0 && fireAction.WasPressedThisFrame())
+            // === 砲弾が無い場合は発射(チャージ)できない (指示2) ===
+            else if (m_CurrentShells > 0 && m_ShotCooldownTimer <= 0 && fireAction.WasPressedThisFrame())
+            // === ここまで ===
             {
                 // ... reset the fired flag and reset the launch force.
                 m_Fired = false;
@@ -197,6 +214,11 @@ namespace Tanks.Complete
         {
             // Set the fired flag so only Fire is only called once.
             m_Fired = true;
+
+            // === 砲弾を消費 (指示2) ===
+            // (HumanUpdate/StartChargingでチャージ開始時に弾数チェックが済んでいる前提)
+            m_CurrentShells--;
+            // === ここまで ===
 
             // Create an instance of the shell and store a reference to it's rigidbody.
             Rigidbody shellInstance =
@@ -277,5 +299,17 @@ namespace Tanks.Complete
 
             return position;
         }
+
+        // === 砲弾を補充する (指示3) ===
+        /// <summary>
+        /// 砲弾カートリッジを取得したときに砲弾を補充します。
+        /// このメソッドは外部（例：砲弾カートリッジの衝突判定スクリプト）から呼ばれます。
+        /// </summary>
+        public void AddShells()
+        {
+            // m_ShellsPerCartridge の分だけ砲弾を増やし、m_MaxShells を上限とする
+            m_CurrentShells = Mathf.Min(m_CurrentShells + m_ShellsPerCartridge, m_MaxShells);
+        }
+        // === ここまで ===
     }
 }
