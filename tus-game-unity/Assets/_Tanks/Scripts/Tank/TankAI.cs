@@ -282,7 +282,19 @@ namespace Tanks.Complete
                             // below 0, we start charging
                             if (m_ShotCooldown <= 0.0f)
                             {
-                                m_Shooting.StartCharging();
+                                // === 砲弾システム (指示4の対応) ===
+                                // 弾があるかどうかを確認
+                                if (m_Shooting.m_CurrentShells > 0)
+                                {
+                                    // 弾があるのでチャージ開始
+                                    m_Shooting.StartCharging();
+                                }
+                                else
+                                {
+                                    // 弾が無いので、射撃を諦めて移動を再開する (スタック防止)
+                                    m_IsMoving = true;
+                                }
+                                // === ここまで ===
                             }
                         }
                     }
