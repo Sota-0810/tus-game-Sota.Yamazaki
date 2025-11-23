@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using System; // 変更: Actionを使用するために追加
 
 namespace Tanks.Complete
 {
@@ -37,6 +38,12 @@ namespace Tanks.Complete
         [Tooltip("砲弾カートリッジを取得したときに補充する数")]
         public int m_ShellsPerCartridge = 10;
         public int m_CurrentShells;                // 現在の砲弾の所持数
+
+        // ▼▼▼ 追加箇所：手順1 ▼▼▼
+        // 砲弾数が変化したことを通知するイベント
+        public event Action<int> OnShellStockChanged;
+        // ▲▲▲ 追加箇所ここまで ▲▲▲
+
         // === ここまで ===
         
         [HideInInspector]
@@ -58,6 +65,10 @@ namespace Tanks.Complete
         private bool m_IsCharging = false;          // Are we currently charging the shot
         private float m_BaseMinLaunchForce;         // The initial value of m_MinLaunchForce
         private float m_ShotCooldownTimer;          // The timer counting down before a shot is allowed again
+
+        // ▼▼▼ 追加箇所：飛距離ゲージの増減方向を管理する変数 ▼▼▼
+        private bool m_ChargingForward;             // trueなら伸びる、falseなら縮む
+        // ▲▲▲ 追加箇所ここまで ▲▲▲
         
         private void OnEnable()
         {
@@ -92,6 +103,15 @@ namespace Tanks.Complete
 
             // === 砲弾の初期化 (指示2) ===
             m_CurrentShells = m_StartingShells;
+
+            // ▼▼▼ 追加箇所：手順1 ▼▼▼
+            // 初期化時に現在の弾数を通知する
+            if (OnShellStockChanged != null)
+            {
+                OnShellStockChanged(m_CurrentShells);
+            }
+            // ▲▲▲ 追加箇所ここまで ▲▲▲
+
             // === ここまで ===
         }
 
@@ -173,40 +193,61 @@ namespace Tanks.Complete
             // The slider should have a default value of the minimum launch force.
             m_AimSlider.value = m_BaseMinLaunchForce;
 
-            // If the max force has been exceeded and the shell hasn't yet been launched...
-            if (m_CurrentLaunchForce >= m_MaxLaunchForce && !m_Fired)
+            // ▼▼▼ 修正箇所：飛距離ゲージの往復ロジック ▼▼▼
+
+            // 1. ボタンを押し始めたとき (Start Pressing)
+            if (m_CurrentShells > 0 && m_ShotCooldownTimer <= 0 && fireAction.WasPressedThisFrame())
             {
-                // ... use the max force and launch the shell.
-                m_CurrentLaunchForce = m_MaxLaunchForce;
-                Fire ();
-            }
-            // Otherwise, if the fire button has just started being pressed...
-            // === 砲弾が無い場合は発射(チャージ)できない (指示2) ===
-            else if (m_CurrentShells > 0 && m_ShotCooldownTimer <= 0 && fireAction.WasPressedThisFrame())
-            // === ここまで ===
-            {
-                // ... reset the fired flag and reset the launch force.
+                // フラグをリセットし、最小値から開始
                 m_Fired = false;
                 m_CurrentLaunchForce = m_MinLaunchForce;
 
-                // Change the clip to the charging clip and start it playing.
+                // 最初はゲージが「伸びる」方向にする
+                m_ChargingForward = true;
+
+                // チャージ音を再生
                 m_ShootingAudio.clip = m_ChargingClip;
                 m_ShootingAudio.Play ();
             }
-            // Otherwise, if the fire button is being held and the shell hasn't been launched yet...
+            // 2. ボタンを押し続けているとき (Charging)
             else if (fireAction.IsPressed() && !m_Fired)
             {
-                // Increment the launch force and update the slider.
-                m_CurrentLaunchForce += m_ChargeSpeed * Time.deltaTime;
+                // 伸びる方向の場合
+                if (m_ChargingForward)
+                {
+                    m_CurrentLaunchForce += m_ChargeSpeed * Time.deltaTime;
 
+                    // 最大を超えたら、方向を「縮む」に反転
+                    if (m_CurrentLaunchForce >= m_MaxLaunchForce)
+                    {
+                        m_CurrentLaunchForce = m_MaxLaunchForce;
+                        m_ChargingForward = false;
+                    }
+                }
+                // 縮む方向の場合
+                else
+                {
+                    m_CurrentLaunchForce -= m_ChargeSpeed * Time.deltaTime;
+
+                    // 最小を下回ったら、方向を「伸びる」に反転
+                    if (m_CurrentLaunchForce <= m_MinLaunchForce)
+                    {
+                        m_CurrentLaunchForce = m_MinLaunchForce;
+                        m_ChargingForward = true;
+                    }
+                }
+
+                // スライダーに反映
                 m_AimSlider.value = m_CurrentLaunchForce;
             }
-            // Otherwise, if the fire button is released and the shell hasn't been launched yet...
+            // 3. ボタンを離したとき (Release / Fire)
             else if (fireAction.WasReleasedThisFrame() && !m_Fired)
             {
-                // ... launch the shell.
+                // 発射
                 Fire ();
             }
+            
+            // ▲▲▲ 修正箇所ここまで ▲▲▲
         }
 
 
@@ -218,6 +259,15 @@ namespace Tanks.Complete
             // === 砲弾を消費 (指示2) ===
             // (HumanUpdate/StartChargingでチャージ開始時に弾数チェックが済んでいる前提)
             m_CurrentShells--;
+
+            // ▼▼▼ 追加箇所：手順1 ▼▼▼
+            // 発射して弾数が減ったことを通知する
+            if (OnShellStockChanged != null)
+            {
+                OnShellStockChanged(m_CurrentShells);
+            }
+            // ▲▲▲ 追加箇所ここまで ▲▲▲
+
             // === ここまで ===
 
             // Create an instance of the shell and store a reference to it's rigidbody.
@@ -309,6 +359,30 @@ namespace Tanks.Complete
         {
             // m_ShellsPerCartridge の分だけ砲弾を増やし、m_MaxShells を上限とする
             m_CurrentShells = Mathf.Min(m_CurrentShells + m_ShellsPerCartridge, m_MaxShells);
+
+            // ▼▼▼ 追加箇所：手順1 ▼▼▼
+            // 補充されて弾数が増えたことを通知する
+            if (OnShellStockChanged != null)
+            {
+                OnShellStockChanged(m_CurrentShells);
+            }
+            // ▲▲▲ 追加箇所ここまで ▲▲▲
+            
+        }
+        // === ここまで ===
+
+        // === 他のオブジェクトとの衝突時に呼ばれる (指示5) ===
+        private void OnCollisionEnter(Collision other)
+        {
+            // 衝突したオブジェクトのタグが "ShellCartridge" かどうかをチェック
+            if (other.gameObject.CompareTag("ShellCartridge"))
+            {
+                // 砲弾を補充する
+                AddShells();
+
+                // 衝突したカートリッジをシーンから削除する
+                Destroy(other.gameObject);
+            }
         }
         // === ここまで ===
     }

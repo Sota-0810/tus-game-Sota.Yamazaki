@@ -15,6 +15,18 @@ namespace Tanks.Complete
             Game
         }
 
+        // === 課題1: GameLoopState 列挙型を追加 ===
+        /// <summary>
+        /// ゲームのラウンド中の詳細な状態を定義します
+        /// </summary>
+        public enum GameLoopState
+        {
+            RoundStarting,  // ラウンドの開始処理中
+            RoundPlaying,   // ラウンドのプレイ中
+            RoundEnding     // ラウンドの終了処理中
+        }
+        // === ここまで ===
+
         // Data about the selected tanks passed from the menu to the GameManager
         public class PlayerData
         {
@@ -40,6 +52,18 @@ namespace Tanks.Complete
         
         private GameState m_CurrentState;
         
+        // === 課題2: GameLoopState を利用する変数とイベントを宣言 ===
+        /// <summary>
+        /// 現在の GameLoop の状態を保持する変数
+        /// </summary>
+        private GameLoopState m_CurrentLoopState;
+
+        /// <summary>
+        /// GameLoop の状態が変更されたときに発行されるイベント
+        /// </summary>
+        public event System.Action<GameLoopState> OnGameStateChanged;
+        // === ここまで ===
+
         private int m_RoundNumber;                  // Which round the game is currently on.
         private WaitForSeconds m_StartWait;         // Used to have a delay whilst the round starts.
         private WaitForSeconds m_EndWait;           // Used to have a delay whilst the round or game ends.
@@ -99,6 +123,25 @@ namespace Tanks.Complete
                     break;
             }
         }
+
+        // === 課題3: 状態を更新しイベントを発生させる SetGameState メソッド ===
+        /// <summary>
+        /// GameLoop の状態を更新し、変更があった場合にイベントを発行します。
+        /// </summary>
+        /// <param name="newState">新しい GameLoop の状態</param>
+        private void SetGameState(GameLoopState newState)
+        {
+            // 新しい状態が現在の状態と異なる場合のみ更新
+            if (m_CurrentLoopState == newState)
+                return;
+
+            m_CurrentLoopState = newState;
+            
+            // C# 6.0 構文 (?.Invoke) を使用して、イベントが null でない場合のみ発行
+            // (OnGameStateChanged != null と同等)
+            OnGameStateChanged?.Invoke(m_CurrentLoopState);
+        }
+        // === ここまで ===
 
         // Called by the menu, passing along the data from the selection made by the player in the menu
         public void StartGame(PlayerData[] playerData)
@@ -189,6 +232,10 @@ namespace Tanks.Complete
 
         private IEnumerator RoundStarting ()
         {
+            // === 課題4: GameLoop の状態の先頭で SetGameState を呼び出す ===
+            SetGameState(GameLoopState.RoundStarting);
+            // === ここまで ===
+
             // As soon as the round starts reset the tanks and make sure they can't move.
             ResetAllTanks ();
             DisableTankControl ();
@@ -207,6 +254,10 @@ namespace Tanks.Complete
 
         private IEnumerator RoundPlaying ()
         {
+            // === 課題4: GameLoop の状態の先頭で SetGameState を呼び出す ===
+            SetGameState(GameLoopState.RoundPlaying);
+            // === ここまで ===
+            
             // As soon as the round begins playing let the players control the tanks.
             EnableTankControl ();
 
@@ -224,6 +275,10 @@ namespace Tanks.Complete
 
         private IEnumerator RoundEnding ()
         {
+            // === 課題4: GameLoop の状態の先頭で SetGameState を呼び出す ===
+            SetGameState(GameLoopState.RoundEnding);
+            // === ここまで ===
+            
             // Stop tanks from moving.
             DisableTankControl ();
 
