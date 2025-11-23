@@ -34,6 +34,11 @@ namespace Tanks.Complete
         
         private TankAI m_AI;                                    // The Tank AI script that let a tank be a bot controlled by the computer
         private InputUser m_InputUser;                          // The Input user link to that tank. Input user identify a single player in the Input system
+
+        // ▼▼▼ 追加箇所：手順2 ▼▼▼
+        // 弾数の変化と、誰のタンクか（ControlIndex）を通知するイベント
+        public event Action<int, int> OnWeaponStockChanged;
+        // ▲▲▲ 追加箇所ここまで ▲▲▲
         
         public void Setup (GameManager manager)
         {
@@ -42,6 +47,17 @@ namespace Tanks.Complete
             m_Shooting = m_Instance.GetComponent<TankShooting> ();
             m_AI = m_Instance.GetComponent<TankAI> ();
             m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas> ().gameObject;
+
+            // ▼▼▼ 追加箇所：手順2 ▼▼▼
+            // TankShootingのイベントを購読し、受け取ったら自分のイベントとしてControlIndex付きで再通知する
+            m_Shooting.OnShellStockChanged += (stockCount) => 
+            {
+                if (OnWeaponStockChanged != null)
+                {
+                    OnWeaponStockChanged(stockCount, ControlIndex);
+                }
+            };
+            // ▲▲▲ 追加箇所ここまで ▲▲▲
 
             // Assign the Input User of that Tank to the script controlling input system binding, so the move/fire actions
             // get only triggered by the right input for that users (e.g. arrow doesn't trigger move if that input user use WASD)
