@@ -43,6 +43,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "SetMine",
+                    "type": "Button",
+                    "id": "0f1e12cd-b1a7-421f-8c49-fa3b5401c400",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Pause",
                     "type": "Button",
                     "id": "97cc8f01-4cfb-44e3-8f5b-e7a8bce553dd",
@@ -221,7 +230,7 @@
                 {
                     "name": "",
                     "id": "3364dd8b-160a-470b-aa56-b62215c05355",
-                    "path": "<Keyboard>/enter",
+                    "path": "<Keyboard>/semicolon",
                     "interactions": "",
                     "processors": "",
                     "groups": "KeyboardRight",
@@ -237,6 +246,39 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2ad863f9-53c7-4539-aa7b-be4ba58718c2",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardLeft",
+                    "action": "SetMine",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1e6ee9af-60b3-46a7-9818-d28a500b08ef",
+                    "path": "<Keyboard>/slash",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardRight",
+                    "action": "SetMine",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "67c5c9d6-5627-408f-925a-46a13843999c",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "SetMine",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

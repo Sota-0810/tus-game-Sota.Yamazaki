@@ -2066,8 +2066,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 877c41ea8a0c12a4cb94d640affb47b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tanks.Complete.CartridgeSpawner
-  m_ShellCartridgePrefab: {fileID: 6760403898877094517, guid: e7449a6193e04fb4c920d35e06ae86e1, type: 3}
-  m_SpawnInterval: 30
+  shellCartridgeData:
+    cartridgePrefab: {fileID: 6760403898877094517, guid: e7449a6193e04fb4c920d35e06ae86e1, type: 3}
+    spawnInterval: 15
+  mineCartridgeData:
+    cartridgePrefab: {fileID: 6760403898877094517, guid: 753270029c51a294da240d45d74a5def, type: 3}
+    spawnInterval: 15
   m_SpawnArea: {x: 40, y: 1.09, z: 40}
   m_SpawnCheckRadius: 0.9
   m_MaxSpawnAttempts: 10

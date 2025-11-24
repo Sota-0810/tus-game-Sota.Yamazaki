@@ -17,8 +17,15 @@ namespace Tanks.Complete
 
         private void Start ()
         {
-            // If it isn't destroyed by then, destroy the shell after its lifetime.
-            Destroy (gameObject, m_MaxLifeTime);
+            // ▼▼▼ 修正箇所：地雷(Mine)でない場合のみ、時間経過で破壊する ▼▼▼
+            // 画像の指示: Startメソッド内でのDestroyメソッドの使用をタグで条件分岐する
+            // タグが "Mine" でない場合（通常の砲弾の場合）のみ、寿命(m_MaxLifeTime)が来たら削除する
+            if (!gameObject.CompareTag("Mine"))
+            {
+                Destroy (gameObject, m_MaxLifeTime);
+            }
+            // "Mine" の場合は、誰かが踏むまで（OnTriggerEnterが呼ばれるまで）削除されない
+            // ▲▲▲ 修正箇所ここまで ▲▲▲
         }
 
 
