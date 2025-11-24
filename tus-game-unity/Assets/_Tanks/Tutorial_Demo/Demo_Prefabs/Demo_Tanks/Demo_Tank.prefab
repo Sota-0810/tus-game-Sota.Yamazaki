@@ -940,7 +940,7 @@ AudioSource:
       outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 0
+    m_RotationOrder: 4
   spreadCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -970,7 +970,7 @@ AudioSource:
       outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 0
+    m_RotationOrder: 4
 --- !u!82 &8268710
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1037,7 +1037,7 @@ AudioSource:
       outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 0
+    m_RotationOrder: 4
   spreadCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -1067,7 +1067,7 @@ AudioSource:
       outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 0
+    m_RotationOrder: 4
 --- !u!114 &11443146
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1092,6 +1092,7 @@ MonoBehaviour:
   m_InputUser: {fileID: 0}
   m_TurretTransform: {fileID: 0}
   m_TurretHUDTransform: {fileID: 0}
+  m_TurretRotationAxis: 0
   m_TurretTurnSpeedValue: 180
 --- !u!114 &11409376
 MonoBehaviour:
@@ -1137,6 +1138,17 @@ MonoBehaviour:
   m_MaxDamage: 100
   m_ExplosionForce: 50
   m_ExplosionRadius: 5
+  m_WeaponStockData:
+    m_WeaponName: Shell
+    m_InitialQuantity: 10
+    m_MaxCapacity: 50
+    m_ReplenishQuantity: 10
+  m_MineStockData:
+    m_WeaponName: Mine
+    m_InitialQuantity: 0
+    m_MaxCapacity: 3
+    m_ReplenishQuantity: 1
+  m_Mine: {fileID: 192454, guid: 74c449f1481cf3b4596b5027f87698ec, type: 3}
   m_InputUser: {fileID: 0}
 --- !u!114 &8577645068931744711
 MonoBehaviour:

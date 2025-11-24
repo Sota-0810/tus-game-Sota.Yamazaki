@@ -89,7 +89,7 @@ namespace Tanks.Complete
         /// </summary>
         /// <param name="stockCount">現在の弾数</param>
         /// <param name="controlIndex">プレイヤー番号 (1 or 2)</param>
-        private void HandleWeaponStockChanged(int stockCount, int controlIndex)
+        private void HandleWeaponStockChanged(WeaponStockData weaponData, int controlIndex)
         {
             // プレイヤー番号に応じて操作する対象のオブジェクトを決める
             GameObject targetObject = null;
@@ -112,7 +112,7 @@ namespace Tanks.Complete
                 if (playerStock != null)
                 {
                     // UIを更新するメソッドを呼び出す
-                    playerStock.UpdatePlayerStock(stockCount);
+                    playerStock.UpdatePlayerStock(weaponData);
                 }
             }
         }

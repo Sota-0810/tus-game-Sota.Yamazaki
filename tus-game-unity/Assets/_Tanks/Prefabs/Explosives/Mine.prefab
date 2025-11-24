@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 498018}
   - component: {fileID: 3391830}
   - component: {fileID: 2387822}
-  - component: {fileID: 13693818}
   - component: {fileID: 10833074}
   - component: {fileID: 11426614}
   - component: {fileID: -927890215427519120}
+  - component: {fileID: -7329796615112059826}
   m_Layer: 0
   m_Name: Mine
   m_TagString: Mine
@@ -94,29 +94,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &13693818
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 192454}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 8192
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.15
-  m_Height: 0.55
-  m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 0.2}
 --- !u!108 &10833074
 Light:
   m_ObjectHideFlags: 0
@@ -201,7 +178,7 @@ MonoBehaviour:
   m_ExplosionAudio: {fileID: 9184786572633591583}
   m_MaxLifeTime: 2
   m_MaxDamage: 100
-  m_ExplosionForce: 1000
+  m_ExplosionForce: 60
   m_ExplosionRadius: 5
 --- !u!114 &-927890215427519120
 MonoBehaviour:
@@ -232,6 +209,27 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!135 &-7329796615112059826
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 192454}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &6950372259491175068
 PrefabInstance:
   m_ObjectHideFlags: 0

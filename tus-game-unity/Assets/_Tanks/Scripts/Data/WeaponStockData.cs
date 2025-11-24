@@ -11,7 +11,7 @@ namespace Tanks.Complete
         
         [Tooltip("武器の名前")]
         [SerializeField]
-        private string m_WeaponName;
+        public string m_WeaponName;
 
         [Tooltip("武器の所持数の初期値")]
         [SerializeField]
