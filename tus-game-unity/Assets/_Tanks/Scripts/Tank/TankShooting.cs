@@ -81,6 +81,10 @@ namespace Tanks.Complete
         // ▼▼▼ 追加箇所：飛距離ゲージの増減方向を管理する変数 ▼▼▼
         private bool m_ChargingForward;             // trueなら伸びる、falseなら縮む
         // ▲▲▲ 追加箇所ここまで ▲▲▲
+
+        // ▼▼▼ 追加: TankHealthへの参照 ▼▼▼
+        private TankHealth m_Health;
+        // ▲▲▲ ここまで ▲▲▲
         
         private void OnEnable()
         {
@@ -100,6 +104,10 @@ namespace Tanks.Complete
             m_InputUser = GetComponent<TankInputUser>();
             if (m_InputUser == null)
                 m_InputUser = gameObject.AddComponent<TankInputUser>();
+
+            // ▼▼▼ 追加: TankHealthコンポーネントの取得 ▼▼▼
+            m_Health = GetComponent<TankHealth>();
+            // ▲▲▲ ここまで ▲▲▲
         }
 
         private void Start ()
@@ -187,6 +195,11 @@ namespace Tanks.Complete
 
         void ComputerUpdate()
         {
+            // ▼▼▼ 追加: 無敵状態なら処理を中断 ▼▼▼
+            if (m_Health != null && m_Health.IsInvincible)
+                return;
+            // ▲▲▲ ここまで ▲▲▲
+            
             // The slider should have a default value of the minimum launch force.
             m_AimSlider.value = m_BaseMinLaunchForce;
 
@@ -216,6 +229,11 @@ namespace Tanks.Complete
         
         void HumanUpdate()
         {
+            // ▼▼▼ 追加: 無敵状態なら処理を中断 ▼▼▼
+            if (m_Health != null && m_Health.IsInvincible)
+                return;
+            // ▲▲▲ ここまで ▲▲▲
+            
             // ▼▼▼ 地雷設置入力 ▼▼▼
             if (setMineAction != null && setMineAction.WasPressedThisFrame())
             {
@@ -294,6 +312,11 @@ namespace Tanks.Complete
         // ▼▼▼ PlaceMineメソッド（修正済み） ▼▼▼
         private void PlaceMine()
         {
+            // ▼▼▼ 追加: 無敵状態なら設置不可 ▼▼▼
+            if (m_Health != null && m_Health.IsInvincible)
+                return;
+            // ▲▲▲ ここまで ▲▲▲
+            
             // 所持数が0より大きい場合のみ
             if (m_MineStockData.CurrentQuantity > 0)
             {

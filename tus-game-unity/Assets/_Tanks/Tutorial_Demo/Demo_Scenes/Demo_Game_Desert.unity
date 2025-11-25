@@ -238,6 +238,79 @@ MonoBehaviour:
   m_Player1StockObject: {fileID: 1158612766}
   m_Player2StockObject: {fileID: 1186491281}
   m_GameManager: {fileID: 1304999365}
+--- !u!1001 &102101953
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -36.68
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -38.58
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6435226035515367611, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_Destination
+      value: 
+      objectReference: {fileID: 286549917}
+    - target: {fileID: 6452041261075159797, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_Name
+      value: Wormhole2
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
 --- !u!1001 &142521361
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1429,6 +1502,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 276841283}
   m_CullTransparentMesh: 1
+--- !u!114 &286549917 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6435226035515367611, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+  m_PrefabInstance: {fileID: 1889693511}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8867b7d47d47d54286f023e4a95c78c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tanks.Complete.WormHole
 --- !u!114 &312519782 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1604204453674786954, guid: d87b6078ef5cbcb4fb0d8f9318d600c4, type: 3}
@@ -2330,6 +2414,17 @@ Transform:
   - {fileID: 1979544988}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &951457157 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6435226035515367611, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+  m_PrefabInstance: {fileID: 1416460845}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8867b7d47d47d54286f023e4a95c78c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tanks.Complete.WormHole
 --- !u!1 &1076714145
 GameObject:
   m_ObjectHideFlags: 0
@@ -3298,6 +3393,79 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 7096617438686371839, guid: dc1a67b1558962a48a9310e6a3c18eb8, type: 3}
   m_PrefabInstance: {fileID: 1441875179}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1416460845
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -38.23
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 39.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7215433
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.6923694
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 87.636
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6435226035515367611, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_Destination
+      value: 
+      objectReference: {fileID: 1678653661}
+    - target: {fileID: 6452041261075159797, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_Name
+      value: Wormhole3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
 --- !u!1001 &1441875179
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3611,6 +3779,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!114 &1527618947 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6435226035515367611, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+  m_PrefabInstance: {fileID: 102101953}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8867b7d47d47d54286f023e4a95c78c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tanks.Complete.WormHole
 --- !u!1001 &1530750146
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3711,6 +3890,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8487406043480985791, guid: 328826c1fd47c3e4bb07a1dec3ec4c19, type: 3}
   m_PrefabInstance: {fileID: 4834583141238145242}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1678653661 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6435226035515367611, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+  m_PrefabInstance: {fileID: 537891405383901142}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8867b7d47d47d54286f023e4a95c78c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tanks.Complete.WormHole
 --- !u!1 &1771596986
 GameObject:
   m_ObjectHideFlags: 0
@@ -3793,6 +3983,83 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!1001 &1889693511
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 40.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 39.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.38931152
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.9211062
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -134.177
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 433762932142139844, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_Radius
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6435226035515367611, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_Destination
+      value: 
+      objectReference: {fileID: 1527618947}
+    - target: {fileID: 6452041261075159797, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_Name
+      value: Wormhole4
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
 --- !u!1001 &1889927101
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4564,6 +4831,79 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!1001 &537891405383901142
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 40.73
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -27.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 144423255466212758, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6435226035515367611, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_Destination
+      value: 
+      objectReference: {fileID: 951457157}
+    - target: {fileID: 6452041261075159797, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
+      propertyPath: m_Name
+      value: Wormhole
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8ae379f2b2fa6884a842f948bd3b2902, type: 3}
 --- !u!1001 &3878303955414019503
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5481,3 +5821,7 @@ SceneRoots:
   - {fileID: 189706247}
   - {fileID: 1212008703}
   - {fileID: 40266374}
+  - {fileID: 537891405383901142}
+  - {fileID: 102101953}
+  - {fileID: 1416460845}
+  - {fileID: 1889693511}

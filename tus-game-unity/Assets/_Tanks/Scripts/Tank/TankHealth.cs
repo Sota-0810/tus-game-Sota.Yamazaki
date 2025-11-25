@@ -21,6 +21,17 @@ namespace Tanks.Complete
         private float m_ShieldValue;                        // Percentage of reduced damage when the tank has a shield.
         private bool m_IsInvincible;                        // Is the tank invincible in this moment?
 
+        private float m_InvincibilityTimer;                 // 無敵タイマー
+
+        // 無敵判定プロパティ
+        public bool IsInvincible
+        {
+            get { return m_InvincibilityTimer > 0; }
+        }
+        // ▲▲▲ ここまで ▲▲▲
+
+        private Renderer[] m_Renderers;
+
         private void Awake ()
         {
             // Instantiate the explosion prefab and get a reference to the particle system on it.
@@ -34,6 +45,8 @@ namespace Tanks.Complete
             
             // Set the slider max value to the max health the tank can have
             m_Slider.maxValue = m_StartingHealth;
+
+            m_Renderers = GetComponentsInChildren<Renderer>();
         }
 
         private void OnDestroy()
@@ -50,10 +63,47 @@ namespace Tanks.Complete
             m_HasShield = false;
             m_ShieldValue = 0;
             m_IsInvincible = false;
+            
+            m_InvincibilityTimer = 0f;
+
+            if (m_Renderers != null)
+            {
+                foreach (var r in m_Renderers) r.enabled = true;
+            }
 
             // Update the health slider's value and color.
             SetHealthUI();
         }
+
+        // ▼▼▼ Updateメソッド（プロパティを使って簡略化） ▼▼▼
+        private void Update()
+        {
+            // プロパティを使って「無敵かどうか」を判定
+            if (IsInvincible)
+            {
+                m_InvincibilityTimer -= Time.deltaTime;
+
+                // 念のため変数も同期
+                m_IsInvincible = true;
+
+                // 点滅処理
+                bool isVisible = Mathf.Repeat(Time.time * 10f, 1f) > 0.5f;
+
+                // タイマー切れの判定（!IsInvincible は timer <= 0 と同じ意味）
+                if (!IsInvincible)
+                {
+                    m_InvincibilityTimer = 0;
+                    m_IsInvincible = false;
+                    isVisible = true; // 最後は必ず表示状態にする
+                }
+
+                foreach (var r in m_Renderers)
+                {
+                    r.enabled = isVisible;
+                }
+            }
+        }
+        // ▲▲▲ 修正箇所ここまで ▲▲▲
 
 
         public void TakeDamage (float amount)
@@ -114,6 +164,11 @@ namespace Tanks.Complete
         public void ToggleInvincibility()
         {
             m_IsInvincible = !m_IsInvincible;
+        }
+
+        public void ActivateInvincibility(float duration)
+        {
+            m_InvincibilityTimer = duration;
         }
 
 
