@@ -43,7 +43,7 @@ namespace Tanks.Complete
             // もしこれが「地雷」で、かつ「生成から1秒以内」なら、衝突を無視して爆発しない
             // (OnTriggerEnterは「入った瞬間」にしか呼ばれないため、
             //  これで設置時の自爆を防ぎつつ、一度離れてから踏めば爆発するようになります)
-            if (gameObject.CompareTag("Mine") && Time.time < m_SpawnTime + 1.0f)
+            if (gameObject.CompareTag("Mine") && Time.time < m_SpawnTime + 0.3f)
             {
                 return;
             }
