@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections; // コルーチン(IEnumerator)のために必要
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -35,10 +36,15 @@ namespace Tanks.Complete
         private TankAI m_AI;                                    // The Tank AI script that let a tank be a bot controlled by the computer
         private InputUser m_InputUser;                          // The Input user link to that tank. Input user identify a single player in the Input system
 
-        // ▼▼▼ 追加箇所：手順2 ▼▼▼
-        // 弾数の変化と、誰のタンクか（ControlIndex）を通知するイベント
-        public event Action<int, int> OnWeaponStockChanged;
-        // ▲▲▲ 追加箇所ここまで ▲▲▲
+        // // ▼▼▼ 追加箇所：手順2 ▼▼▼
+        // // 弾数の変化と、誰のタンクか（ControlIndex）を通知するイベント
+        // public event Action<int, int> OnWeaponStockChanged;
+        // // ▲▲▲ 追加箇所ここまで ▲▲▲
+
+        // ▼▼▼ 修正箇所：引数の型を変更 (int, int) -> (WeaponStockData, int) ▼▼▼
+        // 弾数(int)ではなく、武器データ(WeaponStockData)とControlIndex(int)を通知するイベントに変更
+        public event Action<WeaponStockData, int> OnWeaponStockChanged;
+        // ▲▲▲ 修正箇所ここまで ▲▲▲
         
         public void Setup (GameManager manager)
         {
@@ -48,16 +54,35 @@ namespace Tanks.Complete
             m_AI = m_Instance.GetComponent<TankAI> ();
             m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas> ().gameObject;
 
-            // ▼▼▼ 追加箇所：手順2 ▼▼▼
-            // TankShootingのイベントを購読し、受け取ったら自分のイベントとしてControlIndex付きで再通知する
-            m_Shooting.OnShellStockChanged += (stockCount) => 
+            // // ▼▼▼ 追加箇所：手順2 ▼▼▼
+            // // TankShootingのイベントを購読し、受け取ったら自分のイベントとしてControlIndex付きで再通知する
+            // m_Shooting.OnShellStockChanged += (stockCount) => 
+            // {
+            //     if (OnWeaponStockChanged != null)
+            //     {
+            //         OnWeaponStockChanged(stockCount, ControlIndex);
+            //     }
+            // };
+            // // ▲▲▲ 追加箇所ここまで ▲▲▲
+
+            // ▼▼▼ 修正箇所：購読対象と処理の変更 ▼▼▼
+            // 以前の m_Shooting.OnShellStockChanged は廃止されたため削除
+            // 新しい OnWeaponStockChanged イベントを購読し、データとControlIndexをセットにして再通知する
+            m_Shooting.OnWeaponStockChanged += (data) => 
             {
                 if (OnWeaponStockChanged != null)
                 {
-                    OnWeaponStockChanged(stockCount, ControlIndex);
+                    // data: 武器の情報（砲弾か地雷か、残り弾数など）
+                    // ControlIndex: 誰の戦車か
+                    OnWeaponStockChanged(data, ControlIndex);
                 }
             };
+
+            // ▼▼▼ 追加箇所：指示3（OnMinePlacedイベントの購読） ▼▼▼
+            // 地雷設置イベントを受け取ったら、OnMinePlacedメソッドを実行する
+            m_Shooting.OnMinePlaced += OnMinePlaced;
             // ▲▲▲ 追加箇所ここまで ▲▲▲
+            // ▲▲▲ 修正箇所ここまで ▲▲▲
 
             // Assign the Input User of that Tank to the script controlling input system binding, so the move/fire actions
             // get only triggered by the right input for that users (e.g. arrow doesn't trigger move if that input user use WASD)
@@ -101,6 +126,52 @@ namespace Tanks.Complete
                 }
             }
         }
+
+        // ▼▼▼ 追加箇所：指示3（OnMinePlacedメソッド） ▼▼▼
+        /// <summary>
+        /// 地雷設置イベントを受け取ったときに呼ばれる
+        /// </summary>
+        private void OnMinePlaced()
+        {
+            // 注意点対応: TankManagerはMonoBehaviourではないため、StartCoroutineを直接呼べません。
+            // 代わりに、管理している m_Movement (MonoBehaviour) を使ってコルーチンを開始します。
+            if (m_Movement != null)
+            {
+                m_Movement.StartCoroutine(PlaceMineRoutine());
+            }
+        }
+        // ▲▲▲ 追加箇所ここまで ▲▲▲
+
+        // ▼▼▼ 追加箇所：指示2（PlaceMineRoutineコルーチン） ▼▼▼
+        /// <summary>
+        /// 地雷設置時の硬直時間を管理するコルーチン
+        /// </summary>
+        private IEnumerator PlaceMineRoutine()
+        {
+            // 操作を停止する
+            DisableControl();
+
+            // 一定時間待機する (例: 1秒間動けなくなる)
+            // ※時間は必要に応じて調整してください
+            yield return new WaitForSeconds(1.0f);
+
+            // TankShooting が持っているプレハブ(m_Mine)を使って生成する
+            if (m_Shooting != null && m_Shooting.m_Mine != null && m_Instance != null)
+            {
+                // ▼▼▼ 修正: 地雷を少し浮かせて設置する ▼▼▼
+                // 現在の位置に、上方向(Y軸)へのオフセットを加える
+                // 0.5f という値を変更すると高さを調整できます（例: 0.3f〜0.8fくらいが目安）
+                float verticalOffset = 0.5f; 
+                Vector3 spawnPosition = m_Instance.transform.position + new Vector3(0, verticalOffset, 0);
+
+                GameObject.Instantiate(m_Shooting.m_Mine, spawnPosition, m_Instance.transform.rotation);
+                // ▲▲▲ 修正箇所ここまで ▲▲▲
+            }
+
+            // 操作を再開する
+            EnableControl();
+        }
+        // ▲▲▲ 追加箇所ここまで ▲▲▲
 
 
         // Used during the phases of the game where the player shouldn't be able to control their tank.

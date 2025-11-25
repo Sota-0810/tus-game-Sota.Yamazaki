@@ -10,13 +10,18 @@ namespace Tanks.Complete
     // 指示1, 2: CartridgeSpawner クラスの定義とフィールド
     public class CartridgeSpawner : MonoBehaviour
     {
-        // === フィールド定義 (指示2) ===
+        // === 指示4: CartridgeData型の変数を定義し、古い変数を削除 ===
+        // 削除: m_ShellCartridgePrefab, m_SpawnInterval は削除しました。
+        
+        [Header("Cartridge Settings")]
+        [Tooltip("砲弾カートリッジのデータ")]
+        [SerializeField]
+        private CartridgeData shellCartridgeData;
 
-        [Tooltip("砲弾カートリッジのプレハブを割り当てるための変数")]
-        public GameObject m_ShellCartridgePrefab; // (指示7でプレハブをアタッチする場所)
-
-        [Tooltip("砲弾カートリッジを生成する間隔 (秒)")]
-        public float m_SpawnInterval = 30f;
+        [Tooltip("地雷カートリッジのデータ")]
+        [SerializeField]
+        private CartridgeData mineCartridgeData;
+        // === ここまで ===
 
         [Tooltip("砲弾カートリッジを生成する範囲を指定するための変数")]
         public Vector3 m_SpawnArea = new Vector3(40f, 1.09f, 40f);
@@ -79,7 +84,9 @@ namespace Tanks.Complete
             // 新しい状態が「プレイ中」の場合のみ、新しいスポーンコルーチンを開始する
             if (newState == GameManager.GameLoopState.RoundPlaying)
             {
-                StartCoroutine(SpawnRoutine());
+                // 砲弾と地雷、それぞれの生成処理(コルーチン)を開始する
+                StartCoroutine(SpawnRoutine(shellCartridgeData));
+                StartCoroutine(SpawnRoutine(mineCartridgeData));
             }
         }
         // === ここまで ===
@@ -95,22 +102,22 @@ namespace Tanks.Complete
         }
 
         // 指示4: 砲弾カートリッジを定期的に生成する SpawnRoutine コルーチン
-        private IEnumerator SpawnRoutine()
+        private IEnumerator SpawnRoutine(CartridgeData data)
         {
             // 無限ループ（ゲームが続く限り実行）
             while (true)
             {
                 // 指示3のメソッドを呼び出してカートリッジを生成する
-                SpawnCartridge();
+                SpawnCartridge(data);
 
                 // "yield return" で処理を一時停止する
                 // m_SpawnInterval (例: 10秒) 待ってから、ループの最初に戻る
-                yield return new WaitForSeconds(m_SpawnInterval);
+                yield return new WaitForSeconds(data.spawnInterval);
             }
         }
 
         // 指示3: 砲弾カートリッジを生成する SpawnCartridge メソッド
-        private void SpawnCartridge()
+        private void SpawnCartridge(CartridgeData data)
         {
             // m_MaxSpawnAttempts の回数だけ、安全な場所を試行する
             for (int i = 0; i < m_MaxSpawnAttempts; i++)
@@ -139,7 +146,7 @@ namespace Tanks.Complete
                 {
                     // 安全なので、オブジェクトを生成
                     Quaternion spawnRotation = Quaternion.identity;
-                    Instantiate(m_ShellCartridgePrefab, spawnPosition, spawnRotation);
+                    Instantiate(data.cartridgePrefab, spawnPosition, spawnRotation);
 
                     // 生成に成功したので、このメソッドを終了する (forループからも抜ける)
                     return;

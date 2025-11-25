@@ -29,20 +29,32 @@ namespace Tanks.Complete
         [Tooltip("The radius of the explosion in Unity unit. Force decrease with distance to the center, and an tank further than this from the shell explosion won't be impacted by the explosion")]
         public float m_ExplosionRadius = 5f;                // The maximum distance away from the explosion tanks can be and are still affected.
 
-        // === 砲弾システム (指示1) ===
-        [Header("Shell Ammunition")]
-        [Tooltip("ゲーム開始時の砲弾の所持数")]
-        public int m_StartingShells = 10;
-        [Tooltip("所持可能な砲弾の最大数")]
-        public int m_MaxShells = 50;
-        [Tooltip("砲弾カートリッジを取得したときに補充する数")]
-        public int m_ShellsPerCartridge = 10;
-        public int m_CurrentShells;                // 現在の砲弾の所持数
+        // ▼▼▼ 修正: 砲弾・地雷共通の設定 ▼▼▼
+        [Header("Weapon Settings")]
+        
+        [Tooltip("砲弾管理のための変数")]
+        public WeaponStockData m_WeaponStockData; // 砲弾データ
 
-        // ▼▼▼ 追加箇所：手順1 ▼▼▼
-        // 砲弾数が変化したことを通知するイベント
-        public event Action<int> OnShellStockChanged;
-        // ▲▲▲ 追加箇所ここまで ▲▲▲
+        [Tooltip("地雷管理のための変数")]
+        public WeaponStockData m_MineStockData;   // 地雷データ
+
+        // ★統合されたイベント: 砲弾も地雷もこのイベントで通知します
+        // 受け取った側は WeaponStockData の中身を見て判断します
+        public event Action<WeaponStockData> OnWeaponStockChanged; 
+
+        // ★削除: OnShellStockChanged は廃止しました
+        // public event Action<int> OnShellStockChanged; 
+        // ▲▲▲ ここまで ▲▲▲
+
+        [Tooltip("地雷プレハブのオブジェクト参照")]
+        public GameObject m_Mine;
+
+        private string m_SetMineButton;
+
+        public event Action OnMinePlaced;
+
+        private InputAction setMineAction;
+        // ▲▲▲ ここまで ▲▲▲
 
         // === ここまで ===
         
@@ -98,21 +110,41 @@ namespace Tanks.Complete
             
             fireAction.Enable();
 
+            // ▼▼▼ Startメソッド ▼▼▼
+            // 地雷設置キーの名前を設定
+            m_SetMineButton = "SetMine";
+            
+            // 入力アクションの取得と有効化
+            setMineAction = m_InputUser.ActionAsset.FindAction(m_SetMineButton);
+            if (setMineAction != null)
+            {
+                setMineAction.Enable();
+            }
+            // ▼▼▼ 初期化処理 ▼▼▼
+            // 砲弾の初期化と通知
+            if (m_WeaponStockData != null)
+            {
+                m_WeaponStockData.InitializeQuantity();
+                if (OnWeaponStockChanged != null)
+                {
+                    OnWeaponStockChanged(m_WeaponStockData);
+                }
+            }
+
+            // 地雷の初期化と通知
+            if (m_MineStockData != null)
+            {
+                m_MineStockData.InitializeQuantity();
+                if (OnWeaponStockChanged != null)
+                {
+                    OnWeaponStockChanged(m_MineStockData);
+                }
+            }
+            // ▲▲▲ ここまで ▲▲▲
+            
+
             // The rate that the launch force charges up is the range of possible forces by the max charge time.
             m_ChargeSpeed = (m_MaxLaunchForce - m_MinLaunchForce) / m_MaxChargeTime;
-
-            // === 砲弾の初期化 (指示2) ===
-            m_CurrentShells = m_StartingShells;
-
-            // ▼▼▼ 追加箇所：手順1 ▼▼▼
-            // 初期化時に現在の弾数を通知する
-            if (OnShellStockChanged != null)
-            {
-                OnShellStockChanged(m_CurrentShells);
-            }
-            // ▲▲▲ 追加箇所ここまで ▲▲▲
-
-            // === ここまで ===
         }
 
 
@@ -184,6 +216,13 @@ namespace Tanks.Complete
         
         void HumanUpdate()
         {
+            // ▼▼▼ 地雷設置入力 ▼▼▼
+            if (setMineAction != null && setMineAction.WasPressedThisFrame())
+            {
+                PlaceMine();
+            }
+            // ▲▲▲ ここまで ▲▲▲
+            
             // if there is a cooldown timer, decrement it
             if (m_ShotCooldownTimer > 0.0f)
             {
@@ -194,9 +233,11 @@ namespace Tanks.Complete
             m_AimSlider.value = m_BaseMinLaunchForce;
 
             // ▼▼▼ 修正箇所：飛距離ゲージの往復ロジック ▼▼▼
+            // 弾数チェックに WeaponStockData を使用
+            bool hasShells = m_WeaponStockData != null && m_WeaponStockData.CurrentQuantity > 0;
 
             // 1. ボタンを押し始めたとき (Start Pressing)
-            if (m_CurrentShells > 0 && m_ShotCooldownTimer <= 0 && fireAction.WasPressedThisFrame())
+            if (hasShells && m_ShotCooldownTimer <= 0 && fireAction.WasPressedThisFrame())
             {
                 // フラグをリセットし、最小値から開始
                 m_Fired = false;
@@ -250,25 +291,48 @@ namespace Tanks.Complete
             // ▲▲▲ 修正箇所ここまで ▲▲▲
         }
 
+        // ▼▼▼ PlaceMineメソッド（修正済み） ▼▼▼
+        private void PlaceMine()
+        {
+            // 所持数が0より大きい場合のみ
+            if (m_MineStockData.CurrentQuantity > 0)
+            {
+                // ★削除: Instantiate（設置処理）を削除しました
+                
+                // 所持数をデクリメント（消費だけ行う）
+                m_MineStockData.Use();
 
+                // イベント通知：所持数の変化
+                if (OnWeaponStockChanged != null)
+                {
+                    OnWeaponStockChanged(m_MineStockData);
+                }
+
+                // イベント通知：地雷設置のトリガー（これを受け取った側が設置する想定）
+                if (OnMinePlaced != null)
+                {
+                    OnMinePlaced();
+                }
+            }
+        }
+        // ▲▲▲ ここまで ▲▲▲
+        
         private void Fire ()
         {
             // Set the fired flag so only Fire is only called once.
             m_Fired = true;
 
-            // === 砲弾を消費 (指示2) ===
-            // (HumanUpdate/StartChargingでチャージ開始時に弾数チェックが済んでいる前提)
-            m_CurrentShells--;
-
-            // ▼▼▼ 追加箇所：手順1 ▼▼▼
-            // 発射して弾数が減ったことを通知する
-            if (OnShellStockChanged != null)
+            // ▼▼▼ 砲弾の消費と通知 ▼▼▼
+            if (m_WeaponStockData != null)
             {
-                OnShellStockChanged(m_CurrentShells);
-            }
-            // ▲▲▲ 追加箇所ここまで ▲▲▲
+                m_WeaponStockData.Use();
 
-            // === ここまで ===
+                if (OnWeaponStockChanged != null)
+                {
+                    OnWeaponStockChanged(m_WeaponStockData);
+                }
+            }
+            // ▲▲▲ ここまで ▲▲▲
 
             // Create an instance of the shell and store a reference to it's rigidbody.
             Rigidbody shellInstance =
@@ -357,17 +421,17 @@ namespace Tanks.Complete
         /// </summary>
         public void AddShells()
         {
-            // m_ShellsPerCartridge の分だけ砲弾を増やし、m_MaxShells を上限とする
-            m_CurrentShells = Mathf.Min(m_CurrentShells + m_ShellsPerCartridge, m_MaxShells);
-
-            // ▼▼▼ 追加箇所：手順1 ▼▼▼
-            // 補充されて弾数が増えたことを通知する
-            if (OnShellStockChanged != null)
+            // ▼▼▼ 修正: 統合イベントで通知 ▼▼▼
+            if (m_WeaponStockData != null)
             {
-                OnShellStockChanged(m_CurrentShells);
+                m_WeaponStockData.Replenish();
+
+                if (OnWeaponStockChanged != null)
+                {
+                    OnWeaponStockChanged(m_WeaponStockData);
+                }
             }
-            // ▲▲▲ 追加箇所ここまで ▲▲▲
-            
+            // ▲▲▲ ここまで ▲▲▲
         }
         // === ここまで ===
 
@@ -383,6 +447,19 @@ namespace Tanks.Complete
                 // 衝突したカートリッジをシーンから削除する
                 Destroy(other.gameObject);
             }
+            // ▼▼▼ MineCartridge衝突処理 ▼▼▼
+            else if (other.gameObject.CompareTag("MineCartridge"))
+            {
+                m_MineStockData.Replenish();
+
+                if (OnWeaponStockChanged != null)
+                {
+                    OnWeaponStockChanged(m_MineStockData);
+                }
+
+                Destroy(other.gameObject);
+            }
+            // ▲▲▲ ここまで ▲▲▲
         }
         // === ここまで ===
     }

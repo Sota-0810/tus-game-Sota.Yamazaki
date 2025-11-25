@@ -10,21 +10,63 @@ namespace Tanks.Complete
         [HideInInspector] public float m_MaxLifeTime = 2f;  // The time in seconds before the shell is removed.
 
         // All those are hidden in inspector as they will actually come from the TankShooting scripts
-        [HideInInspector] public float m_MaxDamage = 100f;                    // The amount of damage done if the explosion is centred on a tank.
-        [HideInInspector] public float m_ExplosionForce = 50f;                // The amount of force added to a tank at the centre of the explosion.
-        [HideInInspector] public float m_ExplosionRadius = 5f;                // The maximum distance away from the explosion tanks can be and are still affected.
+        public float m_MaxDamage = 100f;                    // The amount of damage done if the explosion is centred on a tank.
+        public float m_ExplosionForce = 50f;                // The amount of force added to a tank at the centre of the explosion.
+        public float m_ExplosionRadius = 5f;                // The maximum distance away from the explosion tanks can be and are still affected.
+
+        // ▼▼▼ 追加: 生成時刻を記録する変数 ▼▼▼
+        private float m_SpawnTime;
+        // ▲▲▲ ここまで ▲▲▲
 
 
         private void Start ()
         {
-            // If it isn't destroyed by then, destroy the shell after its lifetime.
-            Destroy (gameObject, m_MaxLifeTime);
+            // ▼▼▼ 追加: 生成時刻を記録 ▼▼▼
+            m_SpawnTime = Time.time;
+            // ▲▲▲ ここまで ▲▲▲
+            
+            // ▼▼▼ 修正箇所：地雷(Mine)でない場合のみ、時間経過で破壊する ▼▼▼
+            // 画像の指示: Startメソッド内でのDestroyメソッドの使用をタグで条件分岐する
+            // タグが "Mine" でない場合（通常の砲弾の場合）のみ、寿命(m_MaxLifeTime)が来たら削除する
+            if (!gameObject.CompareTag("Mine"))
+            {
+                Destroy (gameObject, m_MaxLifeTime);
+            }
+            // "Mine" の場合は、誰かが踏むまで（OnTriggerEnterが呼ばれるまで）削除されない
+            // ▲▲▲ 修正箇所ここまで ▲▲▲
         }
 
 
         private void OnTriggerEnter (Collider other)
         {
-			// Collect all the colliders in a sphere from the shell's current position to a radius of the explosion radius.
+			// ▼▼▼ 修正: 地雷の安全装置（アーミングタイム） ▼▼▼
+            // もしこれが「地雷」で、かつ「生成から1秒以内」なら、衝突を無視して爆発しない
+            // (OnTriggerEnterは「入った瞬間」にしか呼ばれないため、
+            //  これで設置時の自爆を防ぎつつ、一度離れてから踏めば爆発するようになります)
+            if (gameObject.CompareTag("Mine") && Time.time < m_SpawnTime + 0.3f)
+            {
+                return;
+            }
+            // ▲▲▲ 修正箇所ここまで ▲▲▲
+
+            // 地雷の場合のチェック
+            if (gameObject.CompareTag("Mine"))
+            {
+                // 相手が戦車（Playersレイヤー）か？
+                bool isTank = (m_TankMask.value & (1 << other.gameObject.layer)) > 0;
+                
+                // 相手が砲弾（Shellタグ または ShellExplosion持ち）か？
+                bool isShell = other.gameObject.CompareTag("Shell") || other.GetComponent<ShellExplosion>() != null;
+
+                // 戦車でも砲弾でもない（地面や壁）なら、爆発せずにスルーする
+                if (!isTank && !isShell)
+                {
+                    return;
+                }
+            }
+            // ▲▲▲ ここまで ▲▲▲
+            
+            // Collect all the colliders in a sphere from the shell's current position to a radius of the explosion radius.
             Collider[] colliders = Physics.OverlapSphere (transform.position, m_ExplosionRadius, m_TankMask);
 
             // Go through all the colliders...
