@@ -69,6 +69,10 @@ namespace Tanks.Complete
 
         private Vector3 m_RequestedDirection;       // In Direct Control mode, store the direction the user *wants* to go toward
         
+        // ▼▼▼ 追加: TankHealthへの参照 ▼▼▼
+        private TankHealth m_Health;
+        // ▲▲▲ ここまで ▲▲▲
+        
         private void Awake ()
         {
             m_Rigidbody = GetComponent<Rigidbody> ();
@@ -77,6 +81,10 @@ namespace Tanks.Complete
             if (m_InputUser == null)
                 m_InputUser = gameObject.AddComponent<TankInputUser>();
 
+            // ▼▼▼ 追加: コンポーネントの取得 ▼▼▼
+            m_Health = GetComponent<TankHealth>();
+            // ▲▲▲ ここまで ▲▲▲
+            
             // --- 課題 3: Awakeの変更 ---
             // 砲塔のゲームオブジェクトが参照できているか、Nullチェックを行います。
             if (m_TurretTransform == null)
@@ -259,6 +267,10 @@ namespace Tanks.Complete
 
         private void FixedUpdate ()
         {
+            // ▼▼▼ 追加: 無敵なら移動・回転しない ▼▼▼
+            if (m_Health.IsInvincible) return;
+            // ▲▲▲ ここまで ▲▲▲
+            
             // If this is using a gamepad or have direct control enabled, this used a different movement method : instead of
             // "up" behind moving forward for the tank, it instead takes the gamepad move direction as the desired forward for the tank
             // and will compute the speed and rotation needed to move the tank toward that direction.
