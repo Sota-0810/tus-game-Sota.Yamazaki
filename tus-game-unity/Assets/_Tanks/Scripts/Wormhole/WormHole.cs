@@ -63,6 +63,14 @@ namespace Tanks.Complete
                 
                 // 回転速度もゼロにする
                 tankRb.angularVelocity = Vector3.zero;
+
+                // ▼▼▼ 追加: CPU戦車だった場合、思考(経路)をリセットさせる ▼▼▼
+                TankAI tankAI = tank.GetComponent<TankAI>();
+                if (tankAI != null)
+                {
+                    tankAI.ResetAI();
+                }
+                // ▲▲▲ 追加箇所ここまで ▲▲▲
             }
             // ▲▲▲ 追加箇所ここまで ▲▲▲
 

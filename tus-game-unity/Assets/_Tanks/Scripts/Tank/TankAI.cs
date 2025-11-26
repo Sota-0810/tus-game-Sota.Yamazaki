@@ -21,6 +21,10 @@ namespace Tanks.Complete
     
         private TankMovement m_Movement;                // Reference to the movement script
         private TankShooting m_Shooting;                // Reference to the shooting script
+
+        // ▼▼▼ 追加: TankHealthへの参照 ▼▼▼
+        private TankHealth m_Health;
+        // ▲▲▲ ここまで ▲▲▲
         
         private float m_PathfindTime = 0.5f;            // Only trigger a pathfind after this time, to not degrade performance
         private float m_PathfindTimer = 0.0f;           // The time until the next pathfind call
@@ -55,6 +59,10 @@ namespace Tanks.Complete
             
             m_Movement = GetComponent<TankMovement>();
             m_Shooting = GetComponent<TankShooting>();
+            // ▼▼▼ 追加: TankHealthコンポーネントの取得 ▼▼▼
+            m_Health = GetComponent<TankHealth>();
+            // ▲▲▲ ここまで ▲▲▲
+
 
             // ensure that both movement and shooting script are set in "computer controlled" mode
             m_Movement.m_IsComputerControlled = true;
@@ -91,6 +99,10 @@ namespace Tanks.Complete
 
         void Update()
         {
+            // ▼▼▼ 追加: 無敵（ワープ）中は思考停止 ▼▼▼
+            if (m_Health != null && m_Health.IsInvincible) return;
+            // ▲▲▲ ここまで ▲▲▲
+            
             // If there is a cooldown active, we decrement it by the time elapsed since last frame
             if(m_ShotCooldown > 0)
                 m_ShotCooldown -= Time.deltaTime;
@@ -307,6 +319,14 @@ namespace Tanks.Complete
 
         private void FleeUpdate()
         {
+            // ▼▼▼ 追加: パスがない場合はエラーになるので、Seekモードに戻ってやり直す ▼▼▼
+            if (m_CurrentPath == null || m_CurrentPath.corners == null)
+            {
+                m_CurrentState = State.Seek;
+                return;
+            }
+            // ▲▲▲ ここまで ▲▲▲
+            
             // When fleeing the tank will go toward a random point away from its target. When we reach the last corners
             // (i.e. point) of that path, we can go back to seek mode
             if(m_CurrentCorner >= m_CurrentPath.corners.Length)
@@ -364,6 +384,10 @@ namespace Tanks.Complete
         // of the project. This is where all physic code should be placed.
         private void FixedUpdate()
         {
+            // ▼▼▼ 追加: 無敵（ワープ）中は移動処理を停止 ▼▼▼
+            if (m_Health != null && m_Health.IsInvincible) return;
+            // ▲▲▲ ここまで ▲▲▲
+            
             // If the tank doesn't have a path currently, exit early.
             if(m_CurrentPath == null || m_CurrentPath.corners.Length == 0)
                 return;
@@ -375,7 +399,19 @@ namespace Tanks.Complete
 
             //if we are not moving, we orient toward our target instead
             if (!m_IsMoving)
-                orientTarget = m_CurrentTarget.position;
+            {
+               // ▼▼▼ 追加: ターゲットが存在する場合のみ、そちらを向く ▼▼▼
+                if (m_CurrentTarget != null)
+                {
+                    orientTarget = m_CurrentTarget.position;
+                }
+                else
+                {
+                    // ターゲットを見失っているなら、回転せずに待機
+                    return; 
+                }
+                // ▲▲▲ ここまで ▲▲▲
+            }
 
             Vector3 toOrientTarget = orientTarget - transform.position;
             toOrientTarget.y = 0;
@@ -419,5 +455,25 @@ namespace Tanks.Complete
 
             return dist;
         }
-    }
+
+        // ▼▼▼ 追加: ワープ時などにAIの思考をリセットするメソッド ▼▼▼
+        public void ResetAI()
+        {
+            // 現在のパス情報を破棄
+            m_CurrentPath = null;
+            m_CurrentCorner = 0;
+            m_IsMoving = false;
+
+            // ★追加: ターゲット情報もリセットして、ゼロから考え直させる
+            m_CurrentTarget = null;
+            
+            // 射撃クールダウンも少し入れて、出た瞬間に撃とうとして固まるのを防ぐ
+            m_ShotCooldown = 1.0f;
+
+            // タイマーを強制的に「制限時間オーバー」にして、
+            // 次のフレームで即座に SeekUpdate（経路探索）が走るようにする
+            m_PathfindTimer = m_PathfindTime + 1.0f;
+        }
+        // ▲▲▲ ここまで ▲▲▲
+    } // classの終わり
 }
