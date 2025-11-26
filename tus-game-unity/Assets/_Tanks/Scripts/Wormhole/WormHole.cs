@@ -84,8 +84,17 @@ namespace Tanks.Complete
             // --- 3. 移動処理 ---
             if (m_Destination != null)
             {
-                // 目的地へ移動（Transformを直接書き換え）
-                tank.transform.position = m_Destination.transform.position;
+                // // 目的地へ移動（Transformを直接書き換え）
+                // tank.transform.position = m_Destination.transform.position;
+
+                //▼▼▼ 修正: 位置と回転の計算を厳密にする ▼▼▼
+                
+                // 1. 位置の計算: ワームホールの「真上」ではなく「同じ高さ」にする
+                // ワームホールのXZ座標だけ使い、Y座標（高さ）は戦車の「今の高さ」を維持する
+                Vector3 targetPos = m_Destination.transform.position;
+                targetPos.y = tank.transform.position.y; 
+                
+                tank.transform.position = targetPos;
                 
                 // 向きも合わせる場合は以下を追加（今回は位置のみでOKですが、あると自然です）
                 tank.transform.rotation = m_Destination.transform.rotation;

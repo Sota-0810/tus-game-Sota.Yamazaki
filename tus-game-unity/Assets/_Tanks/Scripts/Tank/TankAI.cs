@@ -157,9 +157,16 @@ namespace Tanks.Complete
 
                     paths[i] = new NavMeshPath();
 
-                    // this return true if a path was found
+                    // NavMesh.CalculatePath は始点がNavMesh上にないと失敗することがある
+                    // そのため、始点(transform.position)がNavMeshに近いかチェックし、補正する処理が内部で行われます
                     if (NavMesh.CalculatePath(transform.position, tank.transform.position, ~0, paths[i]))
                     {
+                        // パスが不完全（到達不能）な場合は除外
+                        if (paths[i].status == NavMeshPathStatus.PathPartial || paths[i].corners.Length < 2)
+                        {
+                            continue;
+                        }
+                        
                         // Compute how long the path is...
                         float length = GetPathLength(paths[i]);
                         // And if it's the shortest path so far, this is the one we want to go after
@@ -190,8 +197,13 @@ namespace Tanks.Complete
                     m_CurrentCorner = 1;
                     m_IsMoving = true;
                 }
-
-               
+                // ▼▼▼ 修正: パスが見つからない場合も、ターゲットを見失ったわけではないので保持する ▼▼▼
+                //ただし、移動は停止する
+                else
+                {
+                    m_IsMoving = false;
+                }
+                //▲▲▲ ここまで ▲▲▲
             }
             // The pathfinding is now either finished or wasn't triggered this frame as it was done recently enough
             // The SeekUpdate now seek and try to shot at the target it has
@@ -415,6 +427,20 @@ namespace Tanks.Complete
 
             Vector3 toOrientTarget = orientTarget - transform.position;
             toOrientTarget.y = 0;
+
+            // ▼▼▼ 修正: スタック対策 ▼▼▼
+            // 距離が近すぎる場合、回転計算がおかしくなるのを防ぐ
+            if (toOrientTarget.sqrMagnitude < 0.1f)
+            {
+                // すでにその場所にいるとみなし、次のコーナーへ進めるかチェック
+                if (m_IsMoving)
+                {
+                    m_CurrentCorner++;
+                }
+                return;
+            }
+            // ▲▲▲ ここまで ▲▲▲
+            
             toOrientTarget.Normalize();
 
             Vector3 forward = rb.rotation * Vector3.forward;
@@ -438,7 +464,7 @@ namespace Tanks.Complete
 
             // If we reached our current target, we increase our corner. We will never reach the target when the target
             // is another tank as we stop before.
-            if (Vector3.Distance(rb.position, orientTarget) < 0.5f)
+            if (Vector3.Distance(rb.position, orientTarget) < 1.0f)
             {
                 m_CurrentCorner += 1;
             }
@@ -466,7 +492,8 @@ namespace Tanks.Complete
 
             // ★追加: ターゲット情報もリセットして、ゼロから考え直させる
             m_CurrentTarget = null;
-            
+            m_LastTargetPosition = transform.position; // 変な値を入れないように自分にする
+            m_TimeSinceLastTargetMove = 0;
             // 射撃クールダウンも少し入れて、出た瞬間に撃とうとして固まるのを防ぐ
             m_ShotCooldown = 1.0f;
 
