@@ -34,6 +34,11 @@ namespace Tanks.Complete
         [Tooltip("砲塔のゲームオブジェクトのTransformの参照")]
         public Transform m_TurretTransform;
 
+        // ▼▼▼ 追加: カメラの追従目標地点（空オブジェクト） ▼▼▼
+        [Tooltip("TPSカメラが追従すべき位置・回転を指定する空オブジェクト（砲塔の子に配置）")]
+        public Transform m_CameraMount;
+        // ▲▲▲ ここまで ▲▲▲
+
         // --- 課題: TurretHUDのTransform変数を追加 ---
         [Tooltip("砲塔のHUD（TurretHUD）のTransformの参照")]
         public Transform m_TurretHUDTransform;

@@ -39,7 +39,25 @@ namespace Tanks.Complete
         public int m_NumRoundsToWin = 5;            // The number of rounds a single player has to win to win the game.
         public float m_StartDelay = 3f;             // The delay between the start of RoundStarting and RoundPlaying phases.
         public float m_EndDelay = 3f;               // The delay between the end of RoundPlaying and RoundEnding phases.
-        public CameraControl m_CameraControl;       // Reference to the CameraControl script for control during different phases.
+        //public CameraControl m_CameraControl;       // Reference to the CameraControl script for control during different phases.
+
+        [Header("Title Animation")]
+        [Tooltip("動かす対象（CameraRig）")]
+        public Transform m_CameraRig; 
+
+        [Tooltip("タイトル画面でのカメラの開始位置")]
+        public Vector3 m_TitleStartPos = new Vector3(0, 10, -40); // Perspective用に少し調整（例）
+
+        [Tooltip("タイトル画面でのカメラの終了位置（ここまで移動する）")]
+        public Vector3 m_TitleEndPos = new Vector3(0, 5, -20);   // Perspective用に少し調整（例）
+
+        [Tooltip("移動にかかる時間（秒）")]
+        public float m_TitleAnimDuration = 10.0f;
+        
+        // ▼▼▼ 追加箇所：手順1 (TPSカメラの参照) ▼▼▼
+        [Tooltip("TPSカメラ制御用スクリプトの参照")]
+        public TPSCameraControl m_TPSCameraControl; 
+        // ▲▲▲ ここまで ▲▲▲
 
         [Header("Tanks Prefabs")]
         public GameObject m_Tank1Prefab;            // The Prefab used by the tank in Slot 1 of the Menu
@@ -73,34 +91,66 @@ namespace Tanks.Complete
         private PlayerData[] m_TankData;            // Data passed from the menu about each selected tank (at least 2, max 4)
         private int m_PlayerCount = 0;              // The number of players (2 to 4), decided from the number of PlayerData passed by the menu
         private TextMeshProUGUI m_TitleText;        // The text used to display game message. Automatically found as part of the Menu prefab
+        private Coroutine m_TitleAnimCoroutine;
 
         private void Start()
         {
             m_CurrentState = GameState.MainMenu;
 
-            // Find the text used to display game info. Need to look at inactive object too, as the Menu prefab (which contains it) may be
-            // disabled at the start when the user have a Title Screen which will enable the Menu.
-            var textRef = FindAnyObjectByType<MessageTextReference>(FindObjectsInactive.Include);
+            // ▼▼▼ 修正: 常に Perspective (透視投影) に設定 ▼▼▼
+            Camera.main.orthographic = false;
+            // ▲▲▲ ここまで ▲▲▲
 
-            // If that text couldn't be found, we display an error and exit as it is required for the game manager to work
-            if (textRef == null)
+            // TPSカメラ制御を無効化（タイトル画面中は追従させない）
+            if (m_TPSCameraControl != null)
             {
-                Debug.LogError("You need to add the Menus prefab in the scene to use the GameManager!");
-                return;
+                m_TPSCameraControl.enabled = false;
             }
 
-            m_TitleText = textRef.Text;
-            m_TitleText.text = "";
-
-            // The GameManager require 4 tanks prefabs, as the start menu have 4 fixed slot and need the 4 tanks to show there
-            if (m_Tank1Prefab == null || m_Tank2Prefab == null || m_Tank3Prefab == null || m_Tank4Prefab == null)
+            // タイトル画面のアニメーション開始
+            if (m_CameraRig != null)
             {
-                Debug.LogError("You need to assign 4 tank prefab in the GameManager!");
+                m_CameraRig.position = m_TitleStartPos;
+                m_TitleAnimCoroutine = StartCoroutine(AnimateTitleCamera());
+            }
+
+            var textRef = FindAnyObjectByType<MessageTextReference>(FindObjectsInactive.Include);
+            if (textRef != null)
+            {
+                m_TitleText = textRef.Text;
+                m_TitleText.text = "";
+            }
+        }
+
+        private IEnumerator AnimateTitleCamera()
+        {
+            float timer = 0f;
+
+            while (m_CurrentState == GameState.MainMenu)
+            {
+                timer += Time.deltaTime;
+                
+                float t = timer / m_TitleAnimDuration;
+                
+                // 滑らかに移動
+                if (m_CameraRig != null)
+                {
+                    m_CameraRig.position = Vector3.Lerp(m_TitleStartPos, m_TitleEndPos, Mathf.SmoothStep(0f, 1f, t));
+                }
+
+                if (t >= 1.0f) yield break;
+
+                yield return null;
             }
         }
 
         void GameStart()
         {
+            if (m_TitleAnimCoroutine != null)
+            {
+                StopCoroutine(m_TitleAnimCoroutine);
+            }
+            
             // Create the delays so they only have to be made once.
             m_StartWait = new WaitForSeconds (m_StartDelay);
             m_EndWait = new WaitForSeconds (m_EndDelay);
@@ -124,24 +174,15 @@ namespace Tanks.Complete
             }
         }
 
-        // === 課題3: 状態を更新しイベントを発生させる SetGameState メソッド ===
-        /// <summary>
-        /// GameLoop の状態を更新し、変更があった場合にイベントを発行します。
-        /// </summary>
-        /// <param name="newState">新しい GameLoop の状態</param>
         private void SetGameState(GameLoopState newState)
         {
-            // 新しい状態が現在の状態と異なる場合のみ更新
             if (m_CurrentLoopState == newState)
                 return;
 
             m_CurrentLoopState = newState;
             
-            // C# 6.0 構文 (?.Invoke) を使用して、イベントが null でない場合のみ発行
-            // (OnGameStateChanged != null と同等)
             OnGameStateChanged?.Invoke(m_CurrentLoopState);
         }
-        // === ここまで ===
 
         // Called by the menu, passing along the data from the selection made by the player in the menu
         public void StartGame(PlayerData[] playerData)
@@ -185,24 +226,75 @@ namespace Tanks.Complete
             }
         }
 
-
         private void SetCameraTargets()
         {
-            // Create a collection of transforms the same size as the number of tanks.
-            Transform[] targets = new Transform[m_PlayerCount];
+            if (m_TPSCameraControl == null) return;
 
-            // For each of these transforms...
-            for (int i = 0; i < targets.Length; i++)
+            Transform targetTransform = null;
+            TankManager selectedTank = null;
+
+            // 1. 全ての戦車をチェック
+            for (int i = 0; i < m_SpawnPoints.Length; i++)
             {
-                // ... set it to the appropriate tank transform.
-                targets[i] = m_SpawnPoints[i].m_Instance.transform;
+                TankManager tank = m_SpawnPoints[i];
+                if (tank == null || tank.m_Instance == null) continue;
+
+                // CPUはスキップ（人間を探す）
+                if (tank.m_ComputerControlled) continue;
+
+                // 条件: ControlIndex が 1 (1Pの入力) なら、即決で採用
+                if (tank.ControlIndex == 1)
+                {
+                    selectedTank = tank;
+                    break; // これ以上探す必要なし
+                }
+
+                // ControlIndexが1以外でも、人間なら「候補」としてキープしておく
+                // (例: P1がAIで、P2(Human)しかいない場合のため)
+                if (selectedTank == null)
+                {
+                    selectedTank = tank;
+                }
             }
 
-            // These are the targets the camera should follow.
-            m_CameraControl.m_Targets = targets;
+            // 2. もし人間が一人もいなければ（全員CPU）、最初の戦車を映す
+            if (selectedTank == null && m_SpawnPoints.Length > 0)
+            {
+                selectedTank = m_SpawnPoints[0];
+            }
+
+            // 3. 選ばれた戦車から、追従すべきパーツ（Mount > Turret > Body）を取得
+            if (selectedTank != null && selectedTank.m_Instance != null)
+            {
+                GameObject tankObj = selectedTank.m_Instance;
+                TankMovement movement = tankObj.GetComponent<TankMovement>();
+
+                if (movement != null)
+                {
+                    if (movement.m_CameraMount != null)
+                    {
+                        targetTransform = movement.m_CameraMount;
+                    }
+                    else if (movement.m_TurretTransform != null)
+                    {
+                        targetTransform = movement.m_TurretTransform;
+                    }
+                    else
+                    {
+                        targetTransform = tankObj.transform;
+                    }
+                }
+            }
+
+            // 4. カメラに適用
+            if (targetTransform != null)
+            {
+                m_TPSCameraControl.target = targetTransform;
+                Debug.Log($"TPS Camera Target: {targetTransform.name} (Player: {selectedTank.m_PlayerNumber}, Input: {selectedTank.ControlIndex})");
+            }
         }
-
-
+        // ▲▲▲ 修正箇所ここまで ▲▲▲
+        
         // This is called from start and will run each phase of the game one after another.
         private IEnumerator GameLoop ()
         {
@@ -236,13 +328,21 @@ namespace Tanks.Complete
             SetGameState(GameLoopState.RoundStarting);
             // === ここまで ===
 
+            // ゲーム開始時: TPS制御を有効化
+            if (m_TPSCameraControl != null)
+            {
+                m_TPSCameraControl.enabled = true;
+            }
+
             // As soon as the round starts reset the tanks and make sure they can't move.
             ResetAllTanks ();
             DisableTankControl ();
 
             // Snap the camera's zoom and position to something appropriate for the reset tanks.
-            m_CameraControl.SetStartPositionAndSize ();
-
+            // ▼▼▼ 修正箇所：手順4 (位置初期化処理の削除) ▼▼▼
+            // m_CameraControl.SetStartPositionAndSize ();  <-- これを削除
+            // ▲▲▲ ここまで ▲▲▲
+            
             // Increment the round number and display text showing the players what round it is.
             m_RoundNumber++;
             m_TitleText.text = "ROUND " + m_RoundNumber;
