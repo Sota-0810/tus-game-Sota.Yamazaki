@@ -238,6 +238,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tanks.Complete.HUDManager
   m_Player1StockObject: {fileID: 1158612766}
   m_Player2StockObject: {fileID: 1186491281}
+  m_MinimapUI: {fileID: 1823273880}
   m_GameManager: {fileID: 1304999365}
 --- !u!1001 &102101953
 PrefabInstance:
