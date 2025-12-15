@@ -1,5 +1,7 @@
 using UnityEngine;
+using TMPro; // ▼▼▼ 追加: TextMeshProを使うために必要 ▼▼▼
 using Tanks.Complete; 
+using UnityEngine.UI; // CanvasGroup等のために必要
 
 namespace Tanks.Complete
 {
@@ -40,6 +42,13 @@ namespace Tanks.Complete
         private GameObject m_MinimapUI;
         // ▲▲▲ ここまで ▲▲▲
 
+        // ▼▼▼ 追加: ユーザー名を表示するテキスト ▼▼▼
+        [Header("User Info")]
+        [Tooltip("画面左上に表示するユーザー名のテキスト")]
+        [SerializeField]
+        private TextMeshProUGUI m_UserNameText;
+        // ▲▲▲ ここまで ▲▲▲
+
         [Tooltip("Player 1 のミニマップ用カメラ (自動取得されます)")]
         private Camera player1Camera;
 
@@ -67,6 +76,15 @@ namespace Tanks.Complete
             // ▼▼▼ 追加: 勝利数表示を最初は非表示にする (指示4) ▼▼▼
             if (m_Player1WinCount != null) m_Player1WinCount.SetActive(false);
             if (m_Player2WinCount != null) m_Player2WinCount.SetActive(false);
+            // ▲▲▲ ここまで ▲▲▲
+
+            // ▼▼▼ 追加: ユーザー名の表示更新処理 ▼▼▼
+            // UserDataManagerが存在する場合、ユーザー名を取得してテキストに反映する
+            if (m_UserNameText != null && UserDataManager.Instance != null)
+            {
+                m_UserNameText.text = "User: " + UserDataManager.Instance.UserName;
+                m_UserNameText.gameObject.SetActive(true);
+            }
             // ▲▲▲ ここまで ▲▲▲
 
             m_GameManager.OnGameStateChanged += HandleGameStateChanged;
