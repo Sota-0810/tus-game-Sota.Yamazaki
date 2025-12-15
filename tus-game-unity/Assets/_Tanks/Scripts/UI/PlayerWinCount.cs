@@ -11,6 +11,8 @@ namespace Tanks.Complete
         [SerializeField]
         private Image[] m_WinImages;
 
+        private const float INACTIVE_ALPHA = 0.15f;
+
         // 指示3: 勝利数を引数に、アイコンを点灯させるメソッド
         /// <summary>
         /// 勝利数を受け取り、その数だけアイコンを表示（点灯）させます
@@ -23,9 +25,26 @@ namespace Tanks.Complete
             {
                 if (m_WinImages[i] != null)
                 {
-                    // インデックスが勝利数未満なら表示(true)、それ以上なら非表示(false)
-                    // 例: 2勝の場合、i=0,1 が true になり、i=2,3,4 が false になる
-                    m_WinImages[i].gameObject.SetActive(i < winCount);
+                    // ▼▼▼ 修正: 常に表示状態にする（非表示にしない） ▼▼▼
+                    m_WinImages[i].gameObject.SetActive(true);
+
+                    // 現在の色を取得
+                    Color currentColor = m_WinImages[i].color;
+
+                    if (i < winCount)
+                    {
+                        // 獲得済みなら「不透明（くっきり）」
+                        currentColor.a = 1.0f;
+                    }
+                    else
+                    {
+                        // 未獲得なら「半透明（薄く）」
+                        currentColor.a = INACTIVE_ALPHA;
+                    }
+
+                    // 色を適用する
+                    m_WinImages[i].color = currentColor;
+                    // ▲▲▲ ここまで ▲▲▲
                 }
             }
         }

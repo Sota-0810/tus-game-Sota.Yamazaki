@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;          // Buttonクラスを使用するために必要
 using UnityEngine.SceneManagement; // SceneManagerクラスを使用するために必要
+using Tanks.Complete; // UserDataManagerを使うために必要
 
 /// <summary>
 /// スタートボタンのクリックイベントを処理し、ホーム画面へ遷移させるクラス
@@ -44,6 +45,13 @@ public class StartButton : MonoBehaviour
     /// </summary>
     private void OnClicked()
     {
+        // ▼▼▼ 追加箇所：ログインまたは新規登録処理を実行 ▼▼▼
+        if (UserDataManager.Instance != null)
+        {
+            UserDataManager.Instance.LoginOrSignUp();
+        }
+        // ▲▲▲ 追加箇所ここまで ▲▲▲
+        
         // SceneManager.LoadSceneを使用して、ホーム画面へ遷移します。
         // シーン名は定数クラスSceneNamesから取得することで、タイプミスを防ぎます。
         SceneManager.LoadScene(SceneNames.HomeScene);
