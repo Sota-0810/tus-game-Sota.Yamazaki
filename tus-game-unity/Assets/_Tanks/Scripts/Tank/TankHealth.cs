@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System; // ▼▼▼ 追加: Actionを使用するために必要 ▼▼▼
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Tanks.Complete
@@ -12,6 +13,10 @@ namespace Tanks.Complete
         public Color m_ZeroHealthColor = Color.red;      // The color the health bar will be when on no health.
         public GameObject m_ExplosionPrefab;                // A prefab that will be instantiated in Awake, then used whenever the tank dies.
         [HideInInspector] public bool m_HasShield;          // Has the tank picked up a shield power up?
+
+        // ▼▼▼ 追加: HPの変化を通知するイベント ▼▼▼
+        public event Action<float> OnHealthChanged;
+        // ▲▲▲ ここまで ▲▲▲
         
         
         private AudioSource m_ExplosionAudio;               // The audio source to play when the tank explodes.
@@ -179,6 +184,15 @@ namespace Tanks.Complete
 
             // Interpolate the color of the bar between the choosen colours based on the current percentage of the starting health.
             m_FillImage.color = Color.Lerp (m_ZeroHealthColor, m_FullHealthColor, m_CurrentHealth / m_StartingHealth);
+
+            // ▼▼▼ 追加: イベントの発火 ▼▼▼
+            // 画像指示の "SetHealth" メソッドに相当する、HP更新処理のここでイベントを通知します。
+            // 変化したHPを最大HPで割って正規化した値を渡しています。
+            if (OnHealthChanged != null)
+            {
+                OnHealthChanged(m_CurrentHealth / m_StartingHealth);
+            }
+            // ▲▲▲ ここまで ▲▲▲
         }
 
 

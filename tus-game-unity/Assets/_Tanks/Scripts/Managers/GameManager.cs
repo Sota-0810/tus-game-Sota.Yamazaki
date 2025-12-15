@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using System; // Actionのために追加
 
 namespace Tanks.Complete
 {
@@ -81,6 +82,11 @@ namespace Tanks.Complete
         /// </summary>
         public event System.Action<GameLoopState> OnGameStateChanged;
         // === ここまで ===
+
+        // ▼▼▼ 追加: 勝利数変化イベント（引数: ControlIndex, 新しい勝利数） ▼▼▼
+        // 指示1: プレイヤ番号(ControlIndex)と一緒にラウンド勝利数が変化したことを通知するイベント
+        public event Action<int, int> OnRoundWinnerChanged;
+        // ▲▲▲ ここまで ▲▲▲
 
         private int m_RoundNumber;                  // Which round the game is currently on.
         private WaitForSeconds m_StartWait;         // Used to have a delay whilst the round starts.
@@ -390,7 +396,18 @@ namespace Tanks.Complete
 
             // If there is a winner, increment their score.
             if (m_RoundWinner != null)
+            {
                 m_RoundWinner.m_Wins++;
+
+                // ▼▼▼ 追加: 勝利数が変化したのでイベントを通知 (指示1) ▼▼▼
+                // 引数1: 勝ったプレイヤーのControlIndex
+                // 引数2: 新しい勝利数 (m_Wins)
+                if (OnRoundWinnerChanged != null)
+                {
+                    OnRoundWinnerChanged(m_RoundWinner.ControlIndex, m_RoundWinner.m_Wins);
+                }
+                // ▲▲▲ ここまで ▲▲▲
+            }
 
             // Now the winner's score has been incremented, see if someone has one the game.
             m_GameWinner = GetGameWinner ();
