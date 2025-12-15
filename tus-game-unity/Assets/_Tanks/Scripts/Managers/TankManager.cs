@@ -31,6 +31,10 @@ namespace Tanks.Complete
 
         private TankMovement m_Movement;                        // Reference to tank's movement script, used to disable and enable control.
         private TankShooting m_Shooting;                        // Reference to tank's shooting script, used to disable and enable control.
+
+        // ▼▼▼ 追加: TankHealthへの参照を保持する変数 ▼▼▼
+        private TankHealth m_Health;                            // Reference to tank's health script.
+        // ▲▲▲ ここまで ▲▲▲
         private GameObject m_CanvasGameObject;                  // Used to disable the world space UI during the Starting and Ending phases of each round.
         
         private TankAI m_AI;                                    // The Tank AI script that let a tank be a bot controlled by the computer
@@ -45,6 +49,15 @@ namespace Tanks.Complete
         // 弾数(int)ではなく、武器データ(WeaponStockData)とControlIndex(int)を通知するイベントに変更
         public event Action<WeaponStockData, int> OnWeaponStockChanged;
         // ▲▲▲ 修正箇所ここまで ▲▲▲
+
+        // ▼▼▼ 追加: HP変化を通知するイベント（引数: プレイヤー番号, HP割合） ▼▼▼
+        public event Action<int, float> OnHealthChanged;
+        // ▲▲▲ ここまで ▲▲▲
+
+        // ▼▼▼ 追加: 勝利数変化を通知するイベント (指示2) ▼▼▼
+        // 引数: ControlIndex, 勝利数
+        public event Action<int, int> OnWinCountChanged;
+        // ▲▲▲ ここまで ▲▲▲
         
         public void Setup (GameManager manager)
         {
@@ -52,6 +65,9 @@ namespace Tanks.Complete
             m_Movement = m_Instance.GetComponent<TankMovement> ();
             m_Shooting = m_Instance.GetComponent<TankShooting> ();
             m_AI = m_Instance.GetComponent<TankAI> ();
+            // ▼▼▼ 追加: TankHealthの取得 ▼▼▼
+            m_Health = m_Instance.GetComponent<TankHealth>();
+            // ▲▲▲ ここまで ▲▲▲
             m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas> ().gameObject;
 
             // // ▼▼▼ 追加箇所：手順2 ▼▼▼
@@ -77,6 +93,37 @@ namespace Tanks.Complete
                     OnWeaponStockChanged(data, ControlIndex);
                 }
             };
+
+            // ▼▼▼ 追加: HP変化イベントの購読と再通知 ▼▼▼
+            if (m_Health != null)
+            {
+                // TankHealthからHP割合(hpRatio)を受け取り、自身のイベントとして再発火
+                // 引数1: プレイヤー番号 (m_PlayerNumber)
+                // 引数2: HP割合 (hpRatio)
+                m_Health.OnHealthChanged += (hpRatio) =>
+                {
+                    if (OnHealthChanged != null)
+                    {
+                        OnHealthChanged(ControlIndex, hpRatio);
+                    }
+                };
+            }
+            // ▲▲▲ ここまで ▲▲▲
+
+            // ▼▼▼ 追加: 勝利数変化イベントの購読と再通知 (指示2) ▼▼▼
+            // GameManagerから「誰かが勝った」という通知を受け取る
+            manager.OnRoundWinnerChanged += (winnerIndex, winCount) => 
+            {
+                // 勝ったのが自分（この戦車）であれば、イベントを発火する
+                if (winnerIndex == ControlIndex)
+                {
+                    if (OnWinCountChanged != null)
+                    {
+                        OnWinCountChanged(ControlIndex, winCount);
+                    }
+                }
+            };
+            // ▲▲▲ ここまで ▲▲▲
 
             // ▼▼▼ 追加箇所：指示3（OnMinePlacedイベントの購読） ▼▼▼
             // 地雷設置イベントを受け取ったら、OnMinePlacedメソッドを実行する
